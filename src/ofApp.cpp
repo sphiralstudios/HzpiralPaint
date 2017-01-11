@@ -22,17 +22,12 @@ void ofApp::setup(){
     // To use FFTW, try:
     //fft = ofxFft::create(bufferSize, OF_FFT_WINDOW_HAMMING, OF_FFT_FFTW);
     
-//    spectrogram.allocate(bufferSize, fft->getBinSize(), OF_IMAGE_GRAYSCALE);
-//    spectrogram.setColor(ofColor::black);
-//    spectrogramOffset = 0;
-    
     drawBuffer.resize(bufferSize);
     middleBuffer.resize(bufferSize);
     audioBuffer.resize(bufferSize);
     
     nBins = fft->getBinSize();
     
-//    cout <<); nBins;
     binWidth = (float) 22050 / nBins;
     binAmps = new float[nBins];
     binCumAmps = new float[nBins];
@@ -40,13 +35,6 @@ void ofApp::setup(){
     drawBins.resize(fft->getBinSize());
     middleBins.resize(fft->getBinSize());
     audioBins.resize(fft->getBinSize());
-    
-//    spiralPoints = new PolarPoint[nBins*fft->getBinSize()];
-//    for (int i = 0; i < nBins; i++) {
-//        float thetaMake = (float)i*binWidth;
-//        spiralPoints[i].polarFromTheta(thetaMake,1);
-//        
-//    }
     
     // 0 output channels,
     // 1 input channel
@@ -90,16 +78,13 @@ void ofApp::setup(){
     dropMesh4.addColor(c);
     dropMesh4.addColor(c);
     
-//    drops = new Drop[2052];
-//    drops[0].makeDrop(c);
-//    drops[0].polarPoint = binPoint;
+
     
     int dropCount = 1;
     int k = 16;
     for(int j = 1;j<k-1; j++) {
         for (int i=1+(j-1)*(nBins/k); i < (j*nBins/k)+1; i+=pow(2,(j-1))) {
-            //      for (int j=0; j < fft->getBinSize();i++) {
- //           PolarPoint newBinPoint;
+            
             float thetaMake = 2*pi*log2((float)i/10*binWidth) + 4*pi;
             
             binPoint.polarFromTheta(thetaMake, initialRadius);
@@ -126,29 +111,15 @@ void ofApp::setup(){
             dropMesh1.setMode(OF_PRIMITIVE_TRIANGLE_STRIP);
             dropMesh2.setMode(OF_PRIMITIVE_TRIANGLE_STRIP);
             dropMesh3.setMode(OF_PRIMITIVE_TRIANGLE_STRIP);
-            dropMesh4.setMode(OF_PRIMITIVE_TRIANGLE_STRIP);
- //           ofSetColor(c);
- //           drops[dropCount].makeDrop(c);
-  //          drops[dropCount].polarPoint = binPoint;
-  //          dropCount ++;
-            
+            dropMesh4.setMode(OF_PRIMITIVE_TRIANGLE_STRIP);            
         }
     }
     ofEnableBlendMode(OF_BLENDMODE_ADD);
-    
-    
-    
-//    
+   
     //==============
     
-//    drawBaseSpiral();
 }
 
-//~ofApp () {
-//    delete [] binAmps;
-//    delete [] binCumAmps;
-//    delete [] drops;
-//}
 
 //--------------------------------------------------------------
 void ofApp::update(){
@@ -157,7 +128,6 @@ void ofApp::update(){
     plotRadius = plotRSens * bufferSize;
     PolarPoint binPoint;
     binPoint.polarFromTheta(4*pi, initialRadius);
-//    ofColor c = ofColor::fromHsb(0, 255, 255);
     dropMesh1.setVertex(0, ofVec3f(binPoint.x,binPoint.y));
     dropMesh1.setVertex(1, ofVec3f((binPoint.x + dropWidth * paintGrow * cos(binPoint.theta) * binCumAmps[0]*initialRadius), (binPoint.y - dropWidth * paintGrow * sin(binPoint.theta) * binCumAmps[0]*initialRadius), -0.7 * paintGrow * binCumAmps[0]*initialRadius));
     dropMesh2.setVertex(0, ofVec3f((binPoint.x + dropWidth * paintGrow * cos(binPoint.theta) * binCumAmps[0]*initialRadius), (binPoint.y - dropWidth * paintGrow * sin(binPoint.theta) * binCumAmps[0]*initialRadius), -0.7 * paintGrow * binCumAmps[0]*initialRadius));
@@ -188,38 +158,24 @@ void ofApp::update(){
             if (binCumAmps[i] > dropThresh)  { //  || click on mouse at binPoint.x, binPoint.y, 0-binCumAmps[i] * paintGrow*initialRadius
                 Drop newDrop;
                 newDrop.makeDrop(dropMesh1.getColor(l*2), binCumAmps[i]*initialRadius*(binPoint.radius+2800)/10*0.35);
-//                newDrop.makeNewDrop(dropWidth*binCumAmps[i]*initialRadius*500, dropMesh1.getColor(l*2));
                 newDrop.polarPoint = binPoint;
                 newDrop.polarPoint.z = - paintGrow * binCumAmps[i]*initialRadius/2;
                 newDrop.setPosition(newDrop.polarPoint.x*initialRadius, newDrop.polarPoint.y*initialRadius, newDrop.polarPoint.z);
-                // make iterator at beginning, insert
-          //      vector<Drop>::iterator thisDrop = vDrops.end();
                 vDrops.push_back(newDrop);
-   //             drops[l].setRadius(dropWidth*paintGrow*binCumAmps[i]*initialRadius);
-                
                 binCumAmps[i] *= 0.35;
-   //             drops[l].dropping = true;
-                
             }
             l++;
             
         }
     }
- //   vector<Drop>::iterator thisDrop = vDrops.begin();
     for(int i = 0 ; i < vDrops.size(); i++) {
         vDrops[i].polarPoint.z -= 18*initialRadius;
         vDrops[i].setPosition(vDrops[i].polarPoint.x+cos(vDrops[i].polarPoint.theta)*initialRadius, vDrops[i].polarPoint.y-sin(vDrops[i].polarPoint.theta)*initialRadius, vDrops[i].polarPoint.z);
         vDrops[i].dropColor();
-  //      vDrops[i].dolly(-5);
-        //   vDrops[i].getPosition().z
         if (vDrops[i].getPosition().z  < -4000*initialRadius*dropThresh) {
-  //          Drop switchDrop;
-  //          switchDrop = vDrops[i];
             vDrops[i] = vDrops[vDrops.size()-1];
             vDrops.pop_back();
-     //       vDrops.erase(thisDrop);
             i--;
-            //thisDrop--;
         }
     }
     
@@ -257,7 +213,6 @@ void ofApp::draw(){
     int k = 16;
     for(int j = 1;j<k-1; j++) {
         for (int i=1+(j-1)*(nBins/k); i < (j*nBins/k)+1; i+=pow(2,(j-1))) {
-            //      for (int j=0; j < fft->getBinSize();i++) {
             PolarPoint newBinPoint;
             float thetaMake = 2*pi*log2((float)i/10*binWidth) + 4*pi;
             
@@ -277,29 +232,7 @@ void ofApp::draw(){
     dropMesh3.draw();
     dropMesh4.draw();
     for(int i = 0; i < vDrops.size(); i++) {
-//        vDrops[i].setPosition(vDrops[i].polarPoint.x, vDrops[i].polarPoint.y, vDrops[i].polarPoint.z);
-//        triangles = vDrops[i].getMesh().getUniqueFaces();
-//        material.begin();
-//        ofFill();
-//            float angle = ofGetElapsedTimef()*3.2;
-//            float strength = (sin( angle+.25 )) * .5f * 5.f;
-//            ofVec3f faceNormal;
-//            for(size_t i = 0; i < triangles.size(); i++ ) {
-//                // store the face normal here.
-//                // we change the vertices, which makes the face normal change
-//                // every time that we call getFaceNormal //
-//                faceNormal = triangles[i].getFaceNormal();
-//                for(int j = 0; j < 3; j++ ) {
-//                    triangles[i].setVertex( j, triangles[i].getVertex(j) + faceNormal * strength);
-//                }
-//            }
-//            vDrops[i].getMesh().setFromTriangles( triangles );
-//        
-        vDrops[i].draw();  //drawFaces() ????
- //       material.end();
-    
-    
-    
+        vDrops[i].draw();  
     }
     
     ofPopMatrix();
@@ -325,10 +258,8 @@ void ofApp::drawBaseSpiral() {
     oldPoint.polarFromTheta(0, initialRadius);
     ofSetLineWidth(1.0);
     for (int i=1; i < 824; i++) {
-        //        for(int j=0; j < fft->getBinSize(); j++) {
         PolarPoint newPoint;
         newPoint.polarFromTheta((float)i/10, initialRadius);
-        //        ofVertex(newPoint.x, newPoint.y,0);
         ofDrawLine(oldPoint.x, oldPoint.y, newPoint.x, newPoint.y);
         oldPoint = newPoint;
     }
@@ -442,14 +373,12 @@ void ofApp::keyPressed(int key){
             for(int i = 0; i < vDrops.size(); i++) {
                 vDrops[i].resizeDrop(vDrops[i].radius*0.97);
             }
- //           drawBaseSpiral();
             break;
         case 'x':
             initialRadius *= 1.03;
             for(int i = 0; i < vDrops.size(); i++) {
                 vDrops[i].resizeDrop(vDrops[i].radius*1.03);
             }
- //           drawBaseSpiral();
             break;
         case 't':
             dropThresh *= 0.98;
